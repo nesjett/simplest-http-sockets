@@ -1,0 +1,10 @@
+<html>
+	<head>
+		<title>400 Bad request</title>
+	</head>
+	<body>
+		<p><h1>400 Bad request</h1>
+		The request had bad syntax or was inherently impossible to be satisfied.
+		</p>
+	</body>
+</html>

@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<title>Initial page</title>
+	</head>
+	<body>
+		<p><h1>Wellcome to the simplest http server</h1>
+		This server works with websockets and contains the minimun required dependencies to make it work, in a proper way.
+		</p>
+		<p>
+		You should never use this server on production, It's designed with learning porpourses and will not be maintained in the future.
+		</p>
+
+		<p>
+			<h3>Dependencies:</h3>
+			<ul>
+				<li><b>config:</b> contains server configuration files. Yoy may adjust server parameters there, like listening port, maximun concurrent allowed connections, ...</li>
+				<li><b>default_responses:</b> contains the default http response pages (500, 404, ...) YOU <u>SHOULDN'T TOUCH THIS FOLDER</u>, if you want to add custom response pages you have to create them inside public_html > custom_responses</li>
+				<li><b>public_html:</b> the folder in which you have to actually place your html.</li>
+			</ul>
+		</p>
+	</body>
+</html>
