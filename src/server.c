@@ -27,6 +27,7 @@
 
 #define MAXDATASIZE 16384 // máximo número de bytes que se pueden leer de una vez
 
+struct params p;
 
 void sigchld_handler(int s)
 {
@@ -71,8 +72,15 @@ void tratarHTTP_REQUEST(int sd)
 				} 
 */
 
-	sprintf(buf, "%s \n", archivo); // DEBUG
-	write(sd, buf, strlen(buf)); // DEBUG
+	
+	
+	if(p.DEBUG == 1){
+		printf(ANSI_COLOR_BLUE "Serving file %s" ANSI_COLOR_RESET "\n", archivo);
+		
+		sprintf(buf, "%s \n", archivo); // DEBUG
+		write(sd, buf, strlen(buf)); // DEBUG
+	}
+
 
 	sprintf(buf, "HTTP/1.1 200 OK\r\n\r\n");
 	write(sd, buf, strlen(buf));
@@ -97,7 +105,7 @@ int main(void)
     int yes=1;
 
 // init server config
-	struct params p;
+	
 	p = read_config(CONFIG_FILE);
 
         
@@ -142,7 +150,9 @@ int main(void)
             continue;
         }else{
 		if(p.DEBUG == 1)
-			printf(ANSI_COLOR_GREEN "Server: got connection" ANSI_COLOR_RESET "\n");
+			printf(ANSI_COLOR_GREEN "Server: got connection from %s" ANSI_COLOR_RESET "\n", inet_ntoa(their_addr.sin_addr)
+			);
+
 		if (!fork()) { // Este es el proceso hijo
 			close(sockfd); // El hijo no necesita este descriptor
 			tratarHTTP_REQUEST(new_fd);				

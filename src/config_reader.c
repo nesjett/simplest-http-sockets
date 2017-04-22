@@ -70,7 +70,10 @@ struct params read_config(char file[256]) {
 void print_config_params(struct params p){
 	printf(ANSI_COLOR_MAGENTA "Server configuration:\n-----------------------------------------\n\n");
 
-	printf("DEBUG: %d\n", p.DEBUG);
+	if(p.DEBUG == 1)
+		printf("DEBUG:" ANSI_COLOR_CYAN " True\n" ANSI_COLOR_MAGENTA);
+	else
+		printf("DEBUG:" ANSI_COLOR_CYAN " False\n" ANSI_COLOR_MAGENTA);
 	printf("LISTEN_PORT:" ANSI_COLOR_CYAN " %d\n" ANSI_COLOR_MAGENTA, p.LISTEN_PORT);
 	printf("MAX_CLIENTS:" ANSI_COLOR_CYAN " %d\n" ANSI_COLOR_MAGENTA, p.MAX_CLIENTS);
 	printf("DIRECTORY_INDEX:" ANSI_COLOR_CYAN " %s\n" ANSI_COLOR_MAGENTA, p.DIRECTORY_INDEX);
