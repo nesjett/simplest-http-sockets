@@ -1,0 +1,21 @@
+################################
+# server_config.conf
+# 
+# This file contains configuration parameters for the server
+#
+#
+# Created by Néstor Sabater under a *** license. 
+# Personal portfolio: http://nsabater.com
+# Linkedin: https://www.linkedin.com/in/nestorsabater/
+# Github: https://github.com/nesjett
+#
+################################
+
+# Server port to listen incoming requests
+SERVER_PORT 3490
+
+# Maximun allowed connections to attend to at the same time
+BACKLOG 10
+
+# Enables debug messages on server console
+DEBUG 1
