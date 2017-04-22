@@ -1,0 +1,18 @@
+#include "config_params_enum.h" 
+
+struct entry;
+#include <string.h>
+#include "header.h"
+struct entry { char *name; int value; };
+%language=ANSI-C
+%struct-type
+%%
+LISTEN_PORT, STR_VAR_TOKEN_e
+INT_e, STR_INT_e
+BOOL_e, STR_BOOL_e
+%%
+int get_param_index(char *str)
+{
+    struct entry *e = in_word_set(str, strlen(str));
+    return e ? e->value : -1;
+}

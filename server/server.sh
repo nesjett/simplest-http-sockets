@@ -11,7 +11,7 @@ echo "Launching web server"
 date
 echo
 
-
-./mi_httpd
+chmod +x bin/mi_http
+./bin/mi_http
 
 

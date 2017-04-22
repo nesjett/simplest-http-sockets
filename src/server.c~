@@ -95,10 +95,9 @@ int main(void)
     struct sigaction sa;
     int yes=1;
 
-// init server config
 	struct params p;
 	p = read_config(CONFIG_FILE);
-
+    	//printf("%d\n", p.LISTEN_PORT);
         
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");

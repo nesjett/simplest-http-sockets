@@ -1,0 +1,14 @@
+#ifndef CONFIG_PARAMS_ENUM_H_   /* Include guard */
+#define CONFIG_PARAMS_ENUM_H_
+
+#include <string.h>
+
+
+enum {
+    STR_VAR_TOKEN_e,
+    STR_INT_e,
+    STR_BOOL_e
+};
+int get_index(char *str);
+
+#endif // CONFIG_PARAMS_ENUM_H_
