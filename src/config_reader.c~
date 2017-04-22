@@ -8,7 +8,7 @@ int foo(int x)    /* Function definition */
 
 struct params read_config(char file[256]) {
 	struct params t;
-	char buf[1024];
+	char buf[512];
 	char *command;
 	FILE *fd;
 
@@ -68,12 +68,16 @@ struct params read_config(char file[256]) {
 }
 
 void print_config_params(struct params p){
+	printf(ANSI_COLOR_MAGENTA "Server configuration:\n-----------------------------------------\n\n");
+
 	printf("DEBUG: %d\n", p.DEBUG);
-	printf("LISTEN_PORT: %d\n", p.LISTEN_PORT);
+	printf("LISTEN_PORT:" ANSI_COLOR_CYAN  " %d\n" ANSI_COLOR_MAGENTA, p.LISTEN_PORT);
 	printf("MAX_CLIENTS: %d\n", p.MAX_CLIENTS);
 	printf("DIRECTORY_INDEX: %s\n", p.DIRECTORY_INDEX);
 	printf("SECURITY_FILE: %s\n", p.SECURITY_FILE);
 	printf("DOCUMENT_ROOT: %s\n", p.DOCUMENT_ROOT);
+
+	printf("\n-----------------------------------------" ANSI_COLOR_RESET "\n\n\n");
 }
 
 

@@ -16,6 +16,7 @@
 #include <fcntl.h>
 
 // CUSTOM INCLUDES
+#include "colors.h"
 #include "config_reader.h"
 #define CONFIG_FILE "../config/server_config.conf"
 
@@ -50,7 +51,7 @@ void tratarHTTP_REQUEST(int sd)
 	recurso = strtok(NULL, " ");
 	protocolo = strtok(NULL, "\r\n");
 
-	sprintf(archivo, "./%s", recurso); // seguridad, directorio relativo
+	sprintf(archivo, ".%s", recurso); // seguridad, directorio relativo
 		/*
 				printf(" %s\n", strtok(buf, " "));
 				if( strcmp("GET", strtok(buf, " ")) != 0 ){
@@ -140,7 +141,8 @@ int main(void)
             perror("accept");
             continue;
         }else{
-		printf("server: got connection ");
+		if(p.DEBUG == 1)
+			printf(ANSI_COLOR_GREEN "Server: got connection" ANSI_COLOR_RESET "\n");
 		if (!fork()) { // Este es el proceso hijo
 			close(sockfd); // El hijo no necesita este descriptor
 			tratarHTTP_REQUEST(new_fd);				

@@ -17,6 +17,6 @@ struct params {
 
 struct params read_config();
 
-void print_config_params(struct params p*);
+void print_config_params(struct params p);
 
 #endif // CONFIG_READER_H_
