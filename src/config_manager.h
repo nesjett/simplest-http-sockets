@@ -11,7 +11,8 @@
 
 struct params {
 	int LISTEN_PORT, MAX_CLIENTS, DEBUG;
-	char *DIRECTORY_INDEX, *SECURITY_FILE, *DOCUMENT_ROOT;
+	char *DIRECTORY_INDEX, *SECURITY_FILE;
+	char *DOCUMENT_ROOT;
 };
 
 struct params read_config();

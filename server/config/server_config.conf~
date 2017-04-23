@@ -33,7 +33,7 @@ SECURITY_FILE .htaccess
 DOCUMENT_ROOT public_html 
 
 
-#NOT IN USE BELOW THIS POINT
+# NOT IN USE BELOW THIS POINT
 # Public access html's folder
 LOG_FOLDER logs/ 
 

@@ -2,7 +2,7 @@
 
 struct params read_config(char file[256]) {
 	struct params t = {-1,-1,-1,NULL,NULL,NULL}; // Init struct for later check for defaults
-	char buf[512];
+	char buf[1024];
 	char *command;
 	FILE *fd;
 
@@ -11,46 +11,45 @@ struct params read_config(char file[256]) {
 	while (fgets(buf, sizeof buf, fd) != NULL) {
 	    // process line here
 		command = strtok(buf, " ");
-		if(command != NULL && strcmp("#", command) != 0){
+		if(command != NULL && strcmp("#", command) != 0 && strlen(command) > 1 && strstr(command, "#") == NULL){
 			printf("command-->: %s\n", command);
-
-			// INT PARAMS
+			
+			// INIT PARAMS
 			if( strcmp("DEBUG", command) == 0 ){
-				t.DEBUG = atoi(strtok(NULL, " "));
+				t.DEBUG = atoi(strtok(NULL, "\r\n"));
 				continue;
 			}
 
 
 			if( strcmp("LISTEN_PORT", command) == 0 ){
-				t.LISTEN_PORT = atoi(strtok(NULL, " "));
+				t.LISTEN_PORT = atoi(strtok(NULL, "\r\n"));
 				continue;
 			}
 
 			if( strcmp("MAX_CLIENTS", command) == 0 ){
-				t.MAX_CLIENTS = atoi(strtok(NULL, " "));
+				t.MAX_CLIENTS = atoi(strtok(NULL, "\r\n"));
 				continue;
 			}
 
 
 			// STRING PARAMS
 			if( strcmp("DIRECTORY_INDEX", command) == 0  && t.DIRECTORY_INDEX == NULL){
-				t.DIRECTORY_INDEX = strtok(NULL, " ");
-				// TODO: the next printf works here, but not in the print_config_params(), which shows unespected string
-				//printf("DIRECTORY_INDEX: %s\n", t.DIRECTORY_INDEX);
+				t.DIRECTORY_INDEX = strtok(NULL, "\r\n");
 				continue;
 			}
 
 			if( strcmp("SECURITY_FILE", command) == 0  && t.SECURITY_FILE == NULL){
-				t.SECURITY_FILE = strtok(NULL, " ");
+				t.SECURITY_FILE = strtok(NULL, "\r\n");
 				continue;
 			}
 
 			if( strcmp("DOCUMENT_ROOT", command) == 0 && t.DOCUMENT_ROOT == NULL){
-				t.DOCUMENT_ROOT = strtok(NULL, " ");
+				t.DOCUMENT_ROOT = strtok(NULL, "\r\n");
+				printf("DOCUMENT_ROOT-->: %s\n", t.DOCUMENT_ROOT);
 				continue;
 			}
 
-			printf("DOCUMENT_ROOT-->: %s\n", t.DOCUMENT_ROOT);
+			
 		}
 	}
 
