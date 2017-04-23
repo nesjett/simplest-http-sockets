@@ -15,7 +15,6 @@ struct params read_config(char file[256]) {
 
 			// INT PARAMS
 			if( strcmp("DEBUG", command) == 0 ){
-				printf("test for empty value (int): %d\n", t.DEBUG);
 				t.DEBUG = atoi(strtok(NULL, " "));
 				continue;
 			}
@@ -34,7 +33,6 @@ struct params read_config(char file[256]) {
 
 			// STRING PARAMS
 			if( strcmp("DIRECTORY_INDEX", command) == 0 ){
-				printf("test for empty value (string): %s\n", t.DIRECTORY_INDEX);
 				t.DIRECTORY_INDEX = strtok(NULL, " ");
 				// TODO: the next printf works here, but not in the print_config_params(), which shows unespected string
 				//printf("DIRECTORY_INDEX: %s\n", t.DIRECTORY_INDEX);

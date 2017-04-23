@@ -18,6 +18,8 @@
 // CUSTOM INCLUDES
 #include "colors.h"
 #include "config_manager.h"
+#include "constants.h"
+#include "log_manager.h"
 
 
 
@@ -29,7 +31,7 @@ void sigchld_handler(int s)
     while(wait(NULL) > 0);
 }
 
-void tratarHTTP_REQUEST(int sd)
+void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 {
     	char buf[MAXDATASIZE];
    	char *comando, *recurso, *protocolo;
@@ -48,6 +50,14 @@ void tratarHTTP_REQUEST(int sd)
 	protocolo = strtok(NULL, "\r\n");
 
 	sprintf(archivo, ".%s", recurso); // seguridad, directorio relativo
+
+
+	log_write_access_registry(inet_ntoa(their_addr.sin_addr), recurso, "200"); // TODO: Use the right status code, not just 200
+	if(p.DEBUG == 1)
+		printf(ANSI_COLOR_GREEN "Server: got connection from %s" ANSI_COLOR_RESET "\n", inet_ntoa(their_addr.sin_addr));
+	
+
+
 		/*
 				printf(" %s\n", strtok(buf, " "));
 				if( strcmp("GET", strtok(buf, " ")) != 0 ){
@@ -110,12 +120,14 @@ int main(int argc, char *argv[])
 
         
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror("socket");
+	printf(ANSI_COLOR_RED "Error creating the socket" ANSI_COLOR_RESET "\n");
+	log_write_error_registry("Error creating the socket");
         exit(1);
     }
     
     if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
-        perror("setsockopt");
+	printf(ANSI_COLOR_RED "Error in setting sockopt (setsockopt)" ANSI_COLOR_RESET "\n");
+	log_write_error_registry("Error in setting sockopt (setsockopt)");
         exit(1);
     }
     
@@ -127,11 +139,13 @@ int main(int argc, char *argv[])
     if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr))
         == -1) {
 	printf(ANSI_COLOR_RED "Error binding the socket" ANSI_COLOR_RESET "\n");
+	log_write_error_registry("Error binding the socket");
         exit(1);
     }
     
     if (listen(sockfd, p.MAX_CLIENTS) == -1) {
 	printf(ANSI_COLOR_RED "Error listening on the socket" ANSI_COLOR_RESET "\n");
+	log_write_error_registry("Error listening on the socket");
         exit(1);
     }
     
@@ -149,13 +163,9 @@ int main(int argc, char *argv[])
             perror("accept");
             continue;
         }else{
-		if(p.DEBUG == 1)
-			printf(ANSI_COLOR_GREEN "Server: got connection from %s" ANSI_COLOR_RESET "\n", inet_ntoa(their_addr.sin_addr)
-			);
-
 		if (!fork()) { // Child proccess
 			close(sockfd); // Children doesnt needs descriptor
-			tratarHTTP_REQUEST(new_fd);				
+			processHTTP_REQUEST(new_fd, their_addr);				
 			close(new_fd);
 			exit(0);
 		}
