@@ -17,7 +17,7 @@
 
 // CUSTOM INCLUDES
 #include "colors.h"
-#include "config_reader.h"
+#include "config_manager.h"
 #define CONFIG_FILE "../config/server_config.conf"
 
 

@@ -6,9 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-
-
-int foo(int x);  /* An example function declaration */
+#include "colors.h"
 
 struct params {
 	int LISTEN_PORT, MAX_CLIENTS, DEBUG;

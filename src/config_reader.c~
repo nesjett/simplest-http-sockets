@@ -1,11 +1,5 @@
 #include "config_reader.h"  /* Include the header (not strictly necessary here) */
 
-int foo(int x)    /* Function definition */
-{
-    return x + 5;
-}
-
-
 struct params read_config(char file[256]) {
 	struct params t;
 	char buf[512];
@@ -40,7 +34,7 @@ struct params read_config(char file[256]) {
 			// STRING PARAMS
 			if( strcmp("DIRECTORY_INDEX", command) == 0 ){
 				t.DIRECTORY_INDEX = strtok(NULL, " ");
-				// TODO: the next printf work here, but not in the print_config_params(), which shows unespected string
+				// TODO: the next printf works here, but not in the print_config_params(), which shows unespected string
 				//printf("DIRECTORY_INDEX: %s\n", t.DIRECTORY_INDEX);
 				continue;
 			}
@@ -72,6 +66,8 @@ void print_config_params(struct params p){
 
 	if(p.DEBUG == 1)
 		printf("DEBUG:" ANSI_COLOR_CYAN " True\n" ANSI_COLOR_MAGENTA);
+	else
+		printf("DEBUG:" ANSI_COLOR_CYAN " False\n" ANSI_COLOR_MAGENTA);
 	printf("LISTEN_PORT:" ANSI_COLOR_CYAN " %d\n" ANSI_COLOR_MAGENTA, p.LISTEN_PORT);
 	printf("MAX_CLIENTS:" ANSI_COLOR_CYAN " %d\n" ANSI_COLOR_MAGENTA, p.MAX_CLIENTS);
 	printf("DIRECTORY_INDEX:" ANSI_COLOR_CYAN " %s\n" ANSI_COLOR_MAGENTA, p.DIRECTORY_INDEX);

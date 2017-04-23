@@ -1,10 +1,4 @@
-#include "config_reader.h"  /* Include the header (not strictly necessary here) */
-
-int foo(int x)    /* Function definition */
-{
-    return x + 5;
-}
-
+#include "config_manager.h"  /* Include the header (not strictly necessary here) */
 
 struct params read_config(char file[256]) {
 	struct params t;
@@ -40,7 +34,7 @@ struct params read_config(char file[256]) {
 			// STRING PARAMS
 			if( strcmp("DIRECTORY_INDEX", command) == 0 ){
 				t.DIRECTORY_INDEX = strtok(NULL, " ");
-				// TODO: the next printf work here, but not in the print_config_params(), which shows unespected string
+				// TODO: the next printf works here, but not in the print_config_params(), which shows unespected string
 				//printf("DIRECTORY_INDEX: %s\n", t.DIRECTORY_INDEX);
 				continue;
 			}

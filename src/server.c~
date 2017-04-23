@@ -72,13 +72,13 @@ void tratarHTTP_REQUEST(int sd)
 				} 
 */
 
-	sprintf(buf, "%s \n", archivo); // DEBUG
-	write(sd, buf, strlen(buf)); // DEBUG
+	
 	
 	if(p.DEBUG == 1){
 		printf(ANSI_COLOR_BLUE "Serving file %s" ANSI_COLOR_RESET "\n", archivo);
 		
-
+		sprintf(buf, "%s \n", archivo); // DEBUG
+		write(sd, buf, strlen(buf)); // DEBUG
 	}
 
 
