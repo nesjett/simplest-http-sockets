@@ -7,6 +7,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include "colors.h"
+#include "constants.h"
 
 struct params {
 	int LISTEN_PORT, MAX_CLIENTS, DEBUG;
@@ -15,6 +16,8 @@ struct params {
 
 struct params read_config();
 
+
+struct params check_for_defaults(struct params p);
 void print_config_params(struct params p);
 
 #endif // CONFIG_MANAGER_H_

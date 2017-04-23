@@ -1,7 +1,7 @@
 #include "config_manager.h"  /* Include the header (not strictly necessary here) */
 
 struct params read_config(char file[256]) {
-	struct params t;
+	struct params t = {-1,-1,-1,NULL,NULL,NULL}; // Init struct for later check for defaults
 	char buf[512];
 	char *command;
 	FILE *fd;
@@ -15,6 +15,7 @@ struct params read_config(char file[256]) {
 
 			// INT PARAMS
 			if( strcmp("DEBUG", command) == 0 ){
+				printf("test for empty value (int): %d\n", t.DEBUG);
 				t.DEBUG = atoi(strtok(NULL, " "));
 				continue;
 			}
@@ -33,6 +34,7 @@ struct params read_config(char file[256]) {
 
 			// STRING PARAMS
 			if( strcmp("DIRECTORY_INDEX", command) == 0 ){
+				printf("test for empty value (string): %s\n", t.DIRECTORY_INDEX);
 				t.DIRECTORY_INDEX = strtok(NULL, " ");
 				// TODO: the next printf works here, but not in the print_config_params(), which shows unespected string
 				//printf("DIRECTORY_INDEX: %s\n", t.DIRECTORY_INDEX);
@@ -55,10 +57,29 @@ struct params read_config(char file[256]) {
 
 	fclose(fd); // close file
 
+	t = check_for_defaults(t); // check struct to fill with default values the params that were not present on the config file
+
 	if(t.DEBUG == 1)
 		print_config_params(t);
 
 	return t;
+}
+
+struct params check_for_defaults(struct params p){
+	if(p.DEBUG == -1)
+		p.DEBUG = DEFAULT_DEBUG;
+	if(p.LISTEN_PORT == -1)
+		p.LISTEN_PORT = DEFAULT_LISTEN_PORT;
+	if(p.MAX_CLIENTS == -1)
+		p.MAX_CLIENTS = DEFAULT_MAX_CLIENTS;
+	if(p.DIRECTORY_INDEX == NULL)
+		p.DIRECTORY_INDEX = DEFAULT_DIRECTORY_INDEX;
+	if(p.SECURITY_FILE == NULL)
+		p.SECURITY_FILE = DEFAULT_SECURITY_FILE;
+	if(p.DOCUMENT_ROOT == NULL)
+		p.DOCUMENT_ROOT = DEFAULT_DOCUMENT_ROOT;
+
+	return p;
 }
 
 void print_config_params(struct params p){

@@ -18,14 +18,9 @@
 // CUSTOM INCLUDES
 #include "colors.h"
 #include "config_manager.h"
-#define CONFIG_FILE "../config/server_config.conf"
 
 
-#define MYPORT 3490    // Puerto al que conectarán los usuarios
 
-#define BACKLOG 10     // Cuántas conexiones pendientes se mantienen en cola
-
-#define MAXDATASIZE 16384 // máximo número de bytes que se pueden leer de una vez
 
 struct params p;
 
@@ -92,21 +87,26 @@ void tratarHTTP_REQUEST(int sd)
 
 	close(fd);
 }
+
+
+void init_server_configuration(int argc, char *argv[]){
+	p = read_config(CONFIG_FILE);
+
+}
 			
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    int sockfd, new_fd;  // Escuchar sobre sock_fd, nuevas conexiones sobre new_fd
-    struct sockaddr_in my_addr;    // información sobre mi dirección
-    struct sockaddr_in their_addr; // información sobre la dirección del cliente
-    int sin_size;
-    struct sigaction sa;
-    int yes=1;
+	int sockfd, new_fd;  // Escuchar sobre sock_fd, nuevas conexiones sobre new_fd
+	struct sockaddr_in my_addr;    // información sobre mi dirección
+	struct sockaddr_in their_addr; // información sobre la dirección del cliente
+	int sin_size;
+	struct sigaction sa;
+	int yes=1;
 
-// init server config
-	
-	p = read_config(CONFIG_FILE);
+	/**** init server config ****/
+	init_server_configuration(argc, argv);
 
         
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -120,18 +120,18 @@ int main(void)
     }
     
     my_addr.sin_family = AF_INET;         // Ordenación de bytes de la máquina
-    my_addr.sin_port = htons(MYPORT);     // short, Ordenación de bytes de la red
+    my_addr.sin_port = htons(p.LISTEN_PORT);     // short, Ordenación de bytes de la red
     my_addr.sin_addr.s_addr = INADDR_ANY; // Rellenar con mi dirección IP
     memset(&(my_addr.sin_zero), '\0', 8); // Poner a cero el resto de la estructura
     
     if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr))
         == -1) {
-        perror("bind");
+	printf(ANSI_COLOR_RED "Error binding the socket" ANSI_COLOR_RESET "\n");
         exit(1);
     }
     
-    if (listen(sockfd, BACKLOG) == -1) {
-        perror("listen");
+    if (listen(sockfd, p.MAX_CLIENTS) == -1) {
+	printf(ANSI_COLOR_RED "Error listening on the socket" ANSI_COLOR_RESET "\n");
         exit(1);
     }
     
@@ -139,7 +139,7 @@ int main(void)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &sa, NULL) == -1) {
-        perror("sigaction");
+	printf(ANSI_COLOR_RED "SigAction error" ANSI_COLOR_RESET "\n");
         exit(1);
     }
     
@@ -153,8 +153,8 @@ int main(void)
 			printf(ANSI_COLOR_GREEN "Server: got connection from %s" ANSI_COLOR_RESET "\n", inet_ntoa(their_addr.sin_addr)
 			);
 
-		if (!fork()) { // Este es el proceso hijo
-			close(sockfd); // El hijo no necesita este descriptor
+		if (!fork()) { // Child proccess
+			close(sockfd); // Children doesnt needs descriptor
 			tratarHTTP_REQUEST(new_fd);				
 			close(new_fd);
 			exit(0);

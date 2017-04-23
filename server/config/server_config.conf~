@@ -22,12 +22,12 @@ MAX_CLIENTS 10
 
 
 # Default files to look for if none provided on the URI
-DIRECTORY_INDEX index.html,index.htm,index.txt
+DIRECTORY_INDEX index.html,index.htm,index.txt 
 
 
 # TODO: Create file on each public_html directory to allow user control some security/rewrite rules
-SECURITY_FILE .htaccess
+SECURITY_FILE .htaccess 
 
 
 # Public access html's folder
-DOCUMENT_ROOT public_html
+DOCUMENT_ROOT public_html 
