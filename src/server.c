@@ -53,8 +53,7 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 
 	log_write_access_registry(inet_ntoa(their_addr.sin_addr), recurso, "200"); // TODO: Use the right status code, not just 200
-	if(p.DEBUG == 1)
-		printf(ANSI_COLOR_GREEN "Server: got connection from %s" ANSI_COLOR_RESET "\n", inet_ntoa(their_addr.sin_addr));
+
 	
 
 
@@ -80,7 +79,7 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 	
 	
 	if(p.DEBUG == 1){
-		printf(ANSI_COLOR_BLUE "Serving file %s" ANSI_COLOR_RESET "\n", archivo);
+		printf(ANSI_COLOR_GREEN "Server: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", inet_ntoa(their_addr.sin_addr), archivo);
 		
 		sprintf(buf, "%s \n", archivo); // DEBUG
 		write(sd, buf, strlen(buf)); // DEBUG
@@ -157,6 +156,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
+
+    /******* ACTUALLY ACCEPT CONNECTIONS CODE ********/
     while(1) {  // main accept() loop
         sin_size = sizeof(struct sockaddr_in);
         if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, (socklen_t*)&sin_size)) == -1) {
