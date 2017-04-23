@@ -20,6 +20,7 @@
 #include "config_manager.h"
 #include "constants.h"
 #include "log_manager.h"
+#include "header_manager.h"
 
 
 
@@ -34,7 +35,7 @@ void sigchld_handler(int s)
 void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 {
     	char buf[MAXDATASIZE];
-   	char *comando, *recurso, *protocolo;
+   	char *comando, *recurso, *protocol;
     	char archivo[256];
     	int fd;
     	int bLeidos;
@@ -47,60 +48,85 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 	
 	comando = strtok(buf, " ");
 	recurso = strtok(NULL, " ");
-	protocolo = strtok(NULL, "\r\n");
+	protocol = strtok(NULL, "\r\n");
 
-	sprintf(archivo, ".%s", recurso); // seguridad, directorio relativo
-
-
-	log_write_access_registry(inet_ntoa(their_addr.sin_addr), recurso, "200"); // TODO: Use the right status code, not just 200
+printf("%s", p.DOCUMENT_ROOT);
+	sprintf(archivo, "./%s%s", p.DOCUMENT_ROOT, recurso); // add a "." for security reasons (prevent people from accessing system folders)
 
 	
-
-
-		/*
-				printf(" %s\n", strtok(buf, " "));
-				if( strcmp("GET", strtok(buf, " ")) != 0 ){
-				perror("no GET request found");
-						exit(1);
-				}
-
-	
-		*/
-				//procesar archivo
-	fd = open(archivo, O_RDONLY);
-/*
-				if(fp==NULL)
-				{
-					printf("Some problem in opening the file"); // file not found
-					exit(0);
-				} 
-*/
-
-	
-	
-	if(p.DEBUG == 1){
-		printf(ANSI_COLOR_GREEN "Server: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", inet_ntoa(their_addr.sin_addr), archivo);
+	// check if the protocol asked by client is valid on this server (HTTP/1.1 or HTTP/1.0)
+	if( is_valid_protocol(protocol) == false ){
+		if(p.DEBUG == 1){
+			time_t t = time(NULL);
+			struct tm tm = *localtime(&t);
+			printf(ANSI_COLOR_RED "[%d:%d:%d] Server: got connection for unsupported protocol from %s -> " ANSI_COLOR_BLUE "asking for %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+		}
 		
-		sprintf(buf, "%s \n", archivo); // DEBUG
-		write(sd, buf, strlen(buf)); // DEBUG
+		log_write_error_registry("Unsupported protocol requested");
+		close(fd);
+		exit(0);
 	}
 
+	
 
-	sprintf(buf, "HTTP/1.1 200 OK\r\n\r\n");
+	
+
+	
+
+
+	/*
+	printf(" %s\n", strtok(buf, " "));
+	if( strcmp("GET", strtok(buf, " ")) != 0 ){
+		perror("no GET request found");
+		exit(1);
+	}
+	*/
+
+
+	//procesar archivo
+	fd = open(archivo, O_RDONLY);
+	
+	if(fd==-1)
+	{
+		// file not found
+		time_t t = time(NULL);
+		struct tm tm = *localtime(&t);
+		printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_YELLOW "file not found %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+		exit(0);
+	} 
+	
+
+	char *header = get_header();
+	sprintf(buf, "%s", header);
+	free(header); // free the memory allocated for the header string
 	write(sd, buf, strlen(buf));
 
 	while (bLeidos=read(fd, buf, sizeof(buf))>0){
 		write(sd, buf, strlen(buf));
 	}
 
-
 	close(fd);
+
+
+	if(p.DEBUG == 1){
+		time_t t = time(NULL);
+		struct tm tm = *localtime(&t);
+		printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+		
+		sprintf(buf, "%s \n", archivo); // DEBUG
+		write(sd, buf, strlen(buf)); // DEBUG
+	}
+
+
+	// log the connection to the server
+	log_write_access_registry(inet_ntoa(their_addr.sin_addr), recurso, "200"); // TODO: Use the right status code, not just 200
 }
 
 
 void init_server_configuration(int argc, char *argv[]){
 	p = read_config(CONFIG_FILE);
 
+	// TODO: we could check for manual entered parameters on the server launch. ex: ./mi_http port=8888
 }
 			
 
@@ -161,7 +187,8 @@ int main(int argc, char *argv[])
     while(1) {  // main accept() loop
         sin_size = sizeof(struct sockaddr_in);
         if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, (socklen_t*)&sin_size)) == -1) {
-            perror("accept");
+		printf(ANSI_COLOR_RED "Error accepting connection" ANSI_COLOR_RESET "\n");
+		log_write_error_registry("Error accepting connection");
             continue;
         }else{
 		if (!fork()) { // Child proccess

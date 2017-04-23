@@ -12,6 +12,7 @@ struct params read_config(char file[256]) {
 	    // process line here
 		command = strtok(buf, " ");
 		if(command != NULL && strcmp("#", command) != 0){
+			printf("command-->: %s\n", command);
 
 			// INT PARAMS
 			if( strcmp("DEBUG", command) == 0 ){
@@ -32,30 +33,30 @@ struct params read_config(char file[256]) {
 
 
 			// STRING PARAMS
-			if( strcmp("DIRECTORY_INDEX", command) == 0 ){
+			if( strcmp("DIRECTORY_INDEX", command) == 0  && t.DIRECTORY_INDEX == NULL){
 				t.DIRECTORY_INDEX = strtok(NULL, " ");
 				// TODO: the next printf works here, but not in the print_config_params(), which shows unespected string
 				//printf("DIRECTORY_INDEX: %s\n", t.DIRECTORY_INDEX);
 				continue;
 			}
 
-			if( strcmp("SECURITY_FILE", command) == 0 ){
+			if( strcmp("SECURITY_FILE", command) == 0  && t.SECURITY_FILE == NULL){
 				t.SECURITY_FILE = strtok(NULL, " ");
 				continue;
 			}
 
-			if( strcmp("DOCUMENT_ROOT", command) == 0 ){
+			if( strcmp("DOCUMENT_ROOT", command) == 0 && t.DOCUMENT_ROOT == NULL){
 				t.DOCUMENT_ROOT = strtok(NULL, " ");
 				continue;
 			}
 
-
+			printf("DOCUMENT_ROOT-->: %s\n", t.DOCUMENT_ROOT);
 		}
 	}
 
 	fclose(fd); // close file
 
-	t = check_for_defaults(t); // check struct to fill with default values the params that were not present on the config file
+	//t = check_for_defaults(t); // check struct to fill with default values the params that were not present on the config file
 
 	if(t.DEBUG == 1)
 		print_config_params(t);
