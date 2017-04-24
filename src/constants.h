@@ -6,7 +6,7 @@
 #define DEFAULT_MAX_CLIENTS 10
 #define DEFAULT_DEBUG 1
 
-#define SERVER_NAME "MasterLearning/1.0.0 (Unix)"
+#define SERVER_NAME "Nesjett/1.0.0 (Unix)"
 
 #define DEFAULT_DIRECTORY_INDEX "index.html,index.htm,index.txt"
 #define DEFAULT_SECURITY_FILE ".htaccess"

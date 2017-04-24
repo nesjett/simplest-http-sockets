@@ -9,8 +9,9 @@
 #include "colors.h"
 #include "constants.h"
 
-void log_write_access_registry(char *ip, char *file, char *status);
+void log_write_access_registry(char *ip, char *file, int status);
 void log_write_error_registry(char *message);
+//char[32] get_timestamp();
 
 
 #endif // LOG_MANAGER_H_

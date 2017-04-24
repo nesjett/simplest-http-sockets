@@ -35,10 +35,12 @@ void sigchld_handler(int s)
 void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 {
     	char buf[MAXDATASIZE];
-   	char *comando, *recurso, *protocol;
+   	char *comando, *resource, *protocol;
     	char archivo[256];
     	int fd;
     	int bLeidos;
+
+	int request_status = 0;
 				
 	if ((read(sd, buf, MAXDATASIZE)) == -1) {
 		perror("recv--");
@@ -47,11 +49,11 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 	
 	comando = strtok(buf, " ");
-	recurso = strtok(NULL, " ");
+	resource = strtok(NULL, " ");
 	protocol = strtok(NULL, "\r\n");
 
-printf("%s", p.DOCUMENT_ROOT);
-	sprintf(archivo, "./%s%s", p.DOCUMENT_ROOT, recurso); // add a "." for security reasons (prevent people from accessing system folders)
+	printf("%s", p.DOCUMENT_ROOT); // TODO: Replace DEFAULT_DOCUMENT_ROOT with p.DOCUMENT_ROOT
+	sprintf(archivo, "../%s%s", DEFAULT_DOCUMENT_ROOT, resource); // add a ".." for security reasons (prevent people from accessing system folders)
 
 	
 	// check if the protocol asked by client is valid on this server (HTTP/1.1 or HTTP/1.0)
@@ -63,6 +65,8 @@ printf("%s", p.DOCUMENT_ROOT);
 		}
 		
 		log_write_error_registry("Unsupported protocol requested");
+
+
 		close(fd);
 		exit(0);
 	}
@@ -85,6 +89,7 @@ printf("%s", p.DOCUMENT_ROOT);
 
 	//procesar archivo
 	fd = open(archivo, O_RDONLY);
+
 	
 	if(fd==-1)
 	{
@@ -92,34 +97,32 @@ printf("%s", p.DOCUMENT_ROOT);
 		time_t t = time(NULL);
 		struct tm tm = *localtime(&t);
 		printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_YELLOW "file not found %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
-		exit(0);
-	} 
-	
-
-	char *header = get_header();
-	sprintf(buf, "%s", header);
-	free(header); // free the memory allocated for the header string
-	write(sd, buf, strlen(buf));
-
-	while (bLeidos=read(fd, buf, sizeof(buf))>0){
-		write(sd, buf, strlen(buf));
-	}
-
-	close(fd);
-
-
-	if(p.DEBUG == 1){
-		time_t t = time(NULL);
-		struct tm tm = *localtime(&t);
-		printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
 		
-		sprintf(buf, "%s \n", archivo); // DEBUG
-		write(sd, buf, strlen(buf)); // DEBUG
+		request_status = 404; // FILE NOT FOUND 404
+	}else{
+		request_status = 200; // 200 OK
+		char *header = get_header(resource, request_status);
+		sprintf(buf, "%s", header);
+		free(header); // free the memory allocated for the header string
+		write(sd, buf, strlen(buf));
+
+		while (bLeidos=read(fd, buf, sizeof(buf))>0){
+			write(sd, buf, strlen(buf));
+		}
+
+		close(fd);
+
+
+		if(p.DEBUG == 1){
+			time_t t = time(NULL);
+			struct tm tm = *localtime(&t);
+			printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+		}
 	}
 
 
 	// log the connection to the server
-	log_write_access_registry(inet_ntoa(their_addr.sin_addr), recurso, "200"); // TODO: Use the right status code, not just 200
+	log_write_access_registry(inet_ntoa(their_addr.sin_addr), resource, request_status); // TODO: Use the right status code, not just 200
 }
 
 
