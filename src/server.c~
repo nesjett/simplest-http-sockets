@@ -122,12 +122,21 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 
 	// log the connection to the server
-	log_write_access_registry("222", resource, request_status); // TODO: Use the right status code, not just 200
+	log_write_access_registry(inet_ntoa(their_addr.sin_addr), resource, request_status); // TODO: Use the right status code, not just 200
 }
 
 
 void init_server_configuration(int argc, char *argv[]){
-	p = read_config(CONFIG_FILE);
+	p = {
+		DEFAULT_DEBUG,
+		DEFAULT_LISTEN_PORT,
+		DEFAULT_MAX_CLIENTS, 
+		DEFAULT_DIRECTORY_INDEX,
+		DEFAULT_SECURITY_FILE,
+		DEFAULT_DOCUMENT_ROOT
+	}; // init defaults
+
+	read_config(CONFIG_FILE, &p);
 
 	// TODO: we could check for manual entered parameters on the server launch. ex: ./mi_http port=8888
 }

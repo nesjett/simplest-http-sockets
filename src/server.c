@@ -25,7 +25,14 @@
 
 
 
-struct params p;
+struct params p = {
+	DEFAULT_DEBUG,
+	DEFAULT_LISTEN_PORT,
+	DEFAULT_MAX_CLIENTS, 
+	DEFAULT_DIRECTORY_INDEX,
+	DEFAULT_SECURITY_FILE,
+	DEFAULT_DOCUMENT_ROOT
+}; // init defaults
 
 void sigchld_handler(int s)
 {
@@ -127,7 +134,7 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 
 void init_server_configuration(int argc, char *argv[]){
-	p = read_config(CONFIG_FILE);
+	read_config(CONFIG_FILE, &p);
 
 	// TODO: we could check for manual entered parameters on the server launch. ex: ./mi_http port=8888
 }

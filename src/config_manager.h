@@ -11,14 +11,15 @@
 
 struct params {
 	int LISTEN_PORT, MAX_CLIENTS, DEBUG;
-	char *DIRECTORY_INDEX, *SECURITY_FILE;
-	char *DOCUMENT_ROOT;
+	char DIRECTORY_INDEX[256];
+	char SECURITY_FILE[256];
+	char DOCUMENT_ROOT[256];
 };
 
-struct params read_config();
+void read_config(char file[256], struct params *t);
 
 
-struct params check_for_defaults(struct params p);
-void print_config_params(struct params p);
+void check_for_defaults(struct params *p);
+void print_config_params(struct params *p);
 
 #endif // CONFIG_MANAGER_H_
