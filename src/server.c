@@ -14,6 +14,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <errno.h>
 
 // CUSTOM INCLUDES
 #include "colors.h"
@@ -59,8 +60,7 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 	resource = strtok(NULL, " ");
 	protocol = strtok(NULL, "\r\n");
 
-	printf("%s", p.DOCUMENT_ROOT); // TODO: Replace DEFAULT_DOCUMENT_ROOT with p.DOCUMENT_ROOT
-	sprintf(archivo, "../%s%s", DEFAULT_DOCUMENT_ROOT, resource); // add a ".." for security reasons (prevent people from accessing system folders)
+	sprintf(archivo, "../%s%s", p.DOCUMENT_ROOT, resource); // add a ".." for security reasons (prevent people from accessing system folders)
 
 	
 	// check if the protocol asked by client is valid on this server (HTTP/1.1 or HTTP/1.0)
@@ -99,25 +99,22 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 	
 	if(fd==-1)
-	{
-		// file not found
-		time_t t = time(NULL);
-		struct tm tm = *localtime(&t);
-		printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_YELLOW "file not found %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
-		
-		request_status = 404; // FILE NOT FOUND 404
-	}else{
-		request_status = 200; // 200 OK
-		char *header = get_header(resource, request_status);
-		sprintf(buf, "%s", header);
-		free(header); // free the memory allocated for the header string
-		write(sd, buf, strlen(buf));
+	{		
+		if(errno == 2) //no such file or directory
+			request_status = 404; // FILE NOT FOUND 404
+		if(errno == 13) // permision denied
+			request_status = 403; // FORBRIDDEN 403
 
-		while (bLeidos=read(fd, buf, sizeof(buf))>0){
-			write(sd, buf, strlen(buf));
+
+		if(p.DEBUG == 1){
+			// file not found
+			time_t t = time(NULL);
+			struct tm tm = *localtime(&t);
+			printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_YELLOW "file not found %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
 		}
 
-		close(fd);
+	}else{
+		request_status = 200; // 200 OK
 
 
 		if(p.DEBUG == 1){
@@ -125,6 +122,24 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 			struct tm tm = *localtime(&t);
 			printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
 		}
+	}
+
+
+	// PROCESS HEADER & BODY
+	char *header = get_header(resource, request_status);
+	sprintf(buf, "%s", header);
+	free(header); // free the memory allocated for the header string
+	write(sd, buf, strlen(buf));
+
+	if(fd != -1){
+		while (bLeidos=read(fd, buf, sizeof(buf))>0){
+			write(sd, buf, strlen(buf));
+		}
+
+		close(fd);
+	}else{
+		// get body for error message
+		
 	}
 
 
