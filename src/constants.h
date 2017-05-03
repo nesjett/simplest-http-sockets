@@ -20,7 +20,7 @@ static const int DEFAULT_DEBUG = 1;
 #define CONFIG_FILE "../config/server_config.conf"
 #define MAXDATASIZE 16384 // max number of bytes the buffer can read at once
 
-#define LOG_FOLDER "logs/"
+#define DEFAULT_LOG_FOLDER "logs/"
 #define DEFAULT_ERROR_RESPONSES_FOLDER "default_responses/"
 
 #endif // CONSTANTS_H_

@@ -10,7 +10,8 @@
 #include "constants.h"
 
 
-bool check_protocol(char *ptcl);
+bool is_valid_protocol(char *ptcl);
+bool is_valid_command(char *cmd);
 char* get_header();
 char* get_content_type(char *extension);
 char* get_status_code(int status);

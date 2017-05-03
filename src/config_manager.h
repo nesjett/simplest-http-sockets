@@ -14,6 +14,7 @@ struct params {
 	char DIRECTORY_INDEX[256];
 	char SECURITY_FILE[256];
 	char DOCUMENT_ROOT[256];
+	char LOG_FOLDER[256];
 };
 
 void read_config(char file[256], struct params *t);

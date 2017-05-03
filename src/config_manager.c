@@ -49,6 +49,12 @@ void read_config(char file[256], struct params *t) {
 				continue;
 			}
 
+			if( strcmp("LOG_FOLDER", command) == 0 && t->LOG_FOLDER == NULL){
+				command = strtok(NULL, "\r\n");
+				strcpy(t->LOG_FOLDER , command);
+				continue;
+			}
+
 			
 		}
 	}
@@ -76,6 +82,8 @@ void check_for_defaults(struct params *p){
 		strcpy(p->SECURITY_FILE, DEFAULT_SECURITY_FILE);
 	if(p->DOCUMENT_ROOT == NULL)
 		strcpy(p->DOCUMENT_ROOT, DEFAULT_DOCUMENT_ROOT);
+	if(p->LOG_FOLDER == NULL)
+		strcpy(p->LOG_FOLDER, DEFAULT_LOG_FOLDER);
 
 	
 }

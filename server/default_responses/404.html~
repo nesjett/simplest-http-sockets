@@ -1,10 +1,10 @@
 <html>
 	<head>
-		<title>500 Bad request</title>
+		<title>404 Not found</title>
 	</head>
 	<body>
-		<p><h1>500 Bad request</h1>
-		The request had bad syntax or was inherently impossible to be satisfied.
+		<p><h1>404 Not found</h1>
+		The server has not found anything matching the URI given
 		</p>
 	</body>
 </html>
