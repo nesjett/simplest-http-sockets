@@ -122,17 +122,18 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 			*******/
 			if( strcmp("", resource) == 0 || strcmp("/", resource) == 0 || strcmp(" ", resource) == 0 ){
 			
-			resource = strtok(p.DIRECTORY_INDEX, ",");
-			if( resource != NULL ){
-				// try to open the first index
-				sprintf(archivo, "../%s/%s", p.DOCUMENT_ROOT, resource); // add another slash between /%s/s% because if url specifies a resource, it will be /file.html but if its empty, there is no slash
-				fd = open(archivo, O_RDONLY);
+				resource = strtok(p.DIRECTORY_INDEX, ",");
+				if( resource != NULL ){
+					// try to open the first index
+					sprintf(archivo, "../%s/%s", p.DOCUMENT_ROOT, resource); // add another slash between /%s/s% because if url specifies a resource, it will be /file.html but if its empty, there is no slash
+					fd = open(archivo, O_RDONLY);
 		
-				if(fd == -1)
-					while( resource != NULL && fd == -1 ){
-						resource = strtok(NULL, ",");
-						sprintf(archivo, "../%s/%s", p.DOCUMENT_ROOT, resource); // add another slash between /%s/s% because if url specifies a resource, it will be /file.html but if its empty, there is no slash
-						fd = open(archivo, O_RDONLY);
+					if(fd == -1){
+						while( resource != NULL && fd == -1 ){
+							resource = strtok(NULL, ",");
+							sprintf(archivo, "../%s/%s", p.DOCUMENT_ROOT, resource); // add another slash between /%s/s% because if url specifies a resource, it will be /file.html but if its empty, there is no slash
+							fd = open(archivo, O_RDONLY);
+						}
 					}
 				}
 

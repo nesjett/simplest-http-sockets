@@ -105,7 +105,49 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 		
 		log_write_error_registry("Unsupported command requested");
 
-		//exit(0);
+
+
+		// get body for error message
+		sprintf(archivo_error, "../%s%d.html", DEFAULT_ERROR_RESPONSES_FOLDER, request_status);
+		fd = open(archivo_error, O_RDONLY);
+
+		if(fd==-1){
+			strcpy(buf , "<html><head></head><body>Error file not found, please, do not delete /default_responses/ folder nor its content</body></html>");
+			bodyLength = strlen(buf);
+		}else{
+			while (bLeidos=read(fd, buf, sizeof(buf))>0){
+				bodyLength += strlen(buf);
+			}
+
+			close(fd);
+		}
+
+
+		// PROCESS HEADER & BODY
+		write_HEADER(sd, resource, request_status, bodyLength);
+
+	
+		// TODO: Should be done with fopen, fread, so we could rewind() to read the file again, or just seek to the final of the file and get its size
+		// get body for error message
+		fd = open(archivo_error, O_RDONLY);
+
+		if(fd==-1){
+			strcpy(buf , "<html><head></head><body>Error file not found, please, do not delete /default_responses/ folder nor its content</body></html>");
+			write(sd, buf, strlen(buf));
+		}else{
+			while (bLeidos=read(fd, buf, sizeof(buf))>0){
+				write(sd, buf, strlen(buf));
+			}
+
+			close(fd);
+		}
+	
+		
+
+
+		// log the connection to the server
+		log_write_access_registry(inet_ntoa(their_addr.sin_addr), archivo, request_status);
+		exit(0);
 	}
 	
 	
