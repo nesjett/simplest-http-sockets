@@ -41,10 +41,10 @@ void sigchld_handler(int s)
     while(wait(NULL) > 0);
 }
 
-void write_HEADER(int sd, char *resource, int request_status){
+void write_HEADER(int sd, char *resource, int request_status, int size){
 	char buf[MAXDATASIZE];
 	// PROCESS HEADER & BODY
-	char *header = get_header(resource, request_status);
+	char *header = get_header(resource, request_status, size);
 	sprintf(buf, "%s", header);
 	free(header); // free the memory allocated for the header string
 	write(sd, buf, strlen(buf));
@@ -59,9 +59,10 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 {
     	char buf[MAXDATASIZE];
    	char *comando, *resource, *protocol;
-    	char archivo[256];
+    	char archivo[256], archivo_error[256];
     	int fd = -1;
     	int bLeidos;
+	int bodyLength = 0;
 
 	int request_status = 0;
 				
@@ -175,22 +176,65 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 				}
 			}
 
-			// PROCESS HEADER & BODY
-			write_HEADER(sd, resource, request_status);
-
-			if(fd != -1 && request_status == 200){
+			
+			/******
+			*
+			*  contar el body length para la cabecera
+			*
+			*******/
+			if(request_status == 200){
 				while (bLeidos=read(fd, buf, sizeof(buf))>0){
-					write(sd, buf, strlen(buf));
+					bodyLength += strlen(buf);
 				}
-
 				close(fd);
+				// do not close fd here
 			}else{
 				// get body for error message
-				sprintf(archivo, "../%s%d.html", DEFAULT_ERROR_RESPONSES_FOLDER, request_status);
-				fd = open(archivo, O_RDONLY);
+				sprintf(archivo_error, "../%s%d.html", DEFAULT_ERROR_RESPONSES_FOLDER, request_status);
+				if(fd != -1){
+					close(fd);
+					printf("OJO!!!!!!!!!!!!!");
+				}
+				fd = open(archivo_error, O_RDONLY);
 	
 				if(fd==-1){
-					strcpy(buf , "<hrml><head></head><body>Error file not found, please, do not delete /default_responses/ folder nor its content</body></html>");
+					strcpy(buf , "<html><head></head><body>Error file not found, please, do not delete /default_responses/ folder nor its content</body></html>");
+					bodyLength = strlen(buf);
+				}else{
+					while (bLeidos=read(fd, buf, sizeof(buf))>0){
+						bodyLength += strlen(buf);
+					}
+
+					close(fd);
+				}
+		
+			}
+
+			//bodyLength = 800;
+
+			// PROCESS HEADER & BODY
+			write_HEADER(sd, resource, request_status, bodyLength);
+
+		
+			// TODO: Should be done with fopen, fread, so we could rewind() to read the file again, or just seek to the final of the file and get its size
+
+			if(request_status == 200){
+				fd = open(archivo, O_RDONLY);
+
+				if(fd != -1){
+					while (bLeidos=read(fd, buf, sizeof(buf))>0){
+						write(sd, buf, strlen(buf));
+					}
+
+					close(fd);
+				}
+			}else{
+				// get body for error message
+				sprintf(archivo_error, "../%s%d.html", DEFAULT_ERROR_RESPONSES_FOLDER, request_status);
+				fd = open(archivo_error, O_RDONLY);
+	
+				if(fd==-1){
+					strcpy(buf , "<html><head></head><body>Error file not found, please, do not delete /default_responses/ folder nor its content</body></html>");
 					write(sd, buf, strlen(buf));
 				}else{
 					while (bLeidos=read(fd, buf, sizeof(buf))>0){
@@ -204,9 +248,49 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 		}
 		if( strcmp("HEAD", comando) == 0 ){
+			sprintf(archivo, "../%s%s", p.DOCUMENT_ROOT, resource); // add a ".." for security reasons (prevent people from accessing system folders)
+
+			fd = open(archivo, O_RDONLY);
+
+
+			/******
+
+			*
+			*  process request body
+			*
+			*******/
+			if(fd==-1)
+			{		
+				if(errno == 2) //no such file or directory
+					request_status = 404; // FILE NOT FOUND 404
+				if(errno == 13) // permision denied
+					request_status = 403; // FORBRIDDEN 403
+
+
+				if(p.DEBUG == 1){
+					// file not found
+					time_t t = time(NULL);
+					struct tm tm = *localtime(&t);
+					printf(ANSI_COLOR_GREEN "[%d:%d:%d] HEAD: got connection from %s -> " ANSI_COLOR_YELLOW "file not found %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+				}
+
+			}else{
+				request_status = 200; // 200 OK
+
+
+				if(p.DEBUG == 1){
+					time_t t = time(NULL);
+					struct tm tm = *localtime(&t);
+					printf(ANSI_COLOR_GREEN "[%d:%d:%d] HEAD: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+				}
+			}
+
+			close(fd);
+
+	
+
 			// PROCESS HEADER
-			request_status = 200;
-			write_HEADER(sd, resource, request_status);
+			write_HEADER(sd, resource, request_status, 0);
 
 			if(p.DEBUG == 1){
 				time_t t = time(NULL);
@@ -215,16 +299,44 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 			}
 		}
 		if( strcmp("DELETE", comando) == 0 ){
+			sprintf(archivo, "../%s%s", p.DOCUMENT_ROOT, resource); // add a ".." for security reasons (prevent people from accessing system folders)
+
+
 			// PROCESS HEADER
 			request_status = 200;
-			write_HEADER(sd, resource, request_status);
+			write_HEADER(sd, resource, request_status, 250);
 
-			// TODO: Procesar borrado
+			int done;
+			done = remove(archivo);
+
+			if(done == 0){
+				// success on deletion
+				strcpy(buf , "<html><head></head><body>Success deleting file</body></html>");
+				write(sd, buf, strlen(buf));
+
+
+				if(p.DEBUG == 1){
+					time_t t = time(NULL);
+
+					struct tm tm = *localtime(&t);
+					printf(ANSI_COLOR_GREEN "[%d:%d:%d] DELETE: got connection from %s -> " ANSI_COLOR_BLUE "deleted %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+				}
+			}else{
+				// failed to delete
+				strcpy(buf , "<html><head></head><body>Error deleting file</body></html>");
+				write(sd, buf, strlen(buf));
+
+				if(p.DEBUG == 1){
+					time_t t = time(NULL);
+
+					struct tm tm = *localtime(&t);
+					printf(ANSI_COLOR_GREEN "[%d:%d:%d] DELETE: got connection from %s -> " ANSI_COLOR_YELLOW "tried to delete %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+				}
+			}
+
 		}
 
 
-		
-		//procesar archivo
 		
 
 		
@@ -235,7 +347,7 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 
 	// log the connection to the server
-	log_write_access_registry(inet_ntoa(their_addr.sin_addr), resource, request_status); // TODO: Use the right status code, not just 200
+	log_write_access_registry(inet_ntoa(their_addr.sin_addr), archivo, request_status);
 }
 
 

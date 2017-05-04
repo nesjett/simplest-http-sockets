@@ -17,7 +17,7 @@ bool is_valid_command(char *cmd){
 	}
 }
 
-char* get_header(char* resource, int status){
+char* get_header(char* resource, int status, int length){
 	char *header;
 
 	char protocol[256];
@@ -26,16 +26,20 @@ char* get_header(char* resource, int status){
 	char *connection = "Connection: keep-alive\r\n";
 
 	char content_type[128];
-	sprintf(content_type, "Content-type: %s\r\n", get_content_type(resource));
+	sprintf(content_type, "Content-Type: %s\r\n", get_content_type(resource));
+
+	char content_length[128];
+	sprintf(content_length, "Content-Length: %d\r\n", length);
 
 
 	char *server = "Server: " SERVER_NAME "\r\n\r\n"; // last space to let client know header is finished
 	
 
-	header = (char *) malloc(1 + strlen(connection)+ strlen(content_type) + strlen(server) + strlen(protocol) );
+	header = (char *) malloc(1 + strlen(connection)+ strlen(content_type) + strlen(server) + strlen(protocol) + strlen(content_length) );
 	strcpy(header, protocol);
         strcat(header, connection);
         strcat(header, content_type);
+	strcat(header, content_length);
         strcat(header, server);
 
 	return header;
