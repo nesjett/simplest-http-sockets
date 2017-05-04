@@ -41,6 +41,20 @@ void sigchld_handler(int s)
     while(wait(NULL) > 0);
 }
 
+void write_HEADER(int sd, char *resource, int request_status){
+	char buf[MAXDATASIZE];
+	// PROCESS HEADER & BODY
+	char *header = get_header(resource, request_status);
+	sprintf(buf, "%s", header);
+	free(header); // free the memory allocated for the header string
+	write(sd, buf, strlen(buf));
+}
+
+void proccess_GET(int sd, struct sockaddr_in their_addr){
+
+}
+
+
 void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 {
     	char buf[MAXDATASIZE];
@@ -97,7 +111,15 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 
 	if(request_status == 0){
 
-		if( strcmp("", resource) == 0 || strcmp("/", resource) == 0 || strcmp(" ", resource) == 0 ){
+		if( strcmp("GET", comando) == 0 ){
+
+
+			/******
+			*
+			*  get resource from URL or from DIRECTORY_INDEX
+			*
+			*******/
+			if( strcmp("", resource) == 0 || strcmp("/", resource) == 0 || strcmp(" ", resource) == 0 ){
 			
 			resource = strtok(p.DIRECTORY_INDEX, ",");
 			if( resource != NULL ){
@@ -111,83 +133,110 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 						sprintf(archivo, "../%s/%s", p.DOCUMENT_ROOT, resource); // add another slash between /%s/s% because if url specifies a resource, it will be /file.html but if its empty, there is no slash
 						fd = open(archivo, O_RDONLY);
 					}
-			}
+				}
 
 			
-		}else{
-			sprintf(archivo, "../%s%s", p.DOCUMENT_ROOT, resource); // add a ".." for security reasons (prevent people from accessing system folders)
-			//procesar archivo
-			fd = open(archivo, O_RDONLY);
-		}
-
-		//procesar archivo
-		//fd = open(archivo, O_RDONLY);
-
-		if(fd==-1)
-		{		
-			if(errno == 2) //no such file or directory
-				request_status = 404; // FILE NOT FOUND 404
-			if(errno == 13) // permision denied
-				request_status = 403; // FORBRIDDEN 403
-
-
-			if(p.DEBUG == 1){
-				// file not found
-				time_t t = time(NULL);
-				struct tm tm = *localtime(&t);
-				printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_YELLOW "file not found %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+			}else{
+				sprintf(archivo, "../%s%s", p.DOCUMENT_ROOT, resource); // add a ".." for security reasons (prevent people from accessing system folders)
+				//procesar archivo
+				fd = open(archivo, O_RDONLY);
 			}
 
-		}else{
-			request_status = 200; // 200 OK
 
 
-			if(p.DEBUG == 1){
-				time_t t = time(NULL);
-				struct tm tm = *localtime(&t);
-				printf(ANSI_COLOR_GREEN "[%d:%d:%d] Server: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+			/******
+			*
+			*  process request body
+			*
+			*******/
+			if(fd==-1)
+			{		
+				if(errno == 2) //no such file or directory
+					request_status = 404; // FILE NOT FOUND 404
+				if(errno == 13) // permision denied
+					request_status = 403; // FORBRIDDEN 403
+
+
+				if(p.DEBUG == 1){
+					// file not found
+					time_t t = time(NULL);
+					struct tm tm = *localtime(&t);
+					printf(ANSI_COLOR_GREEN "[%d:%d:%d] GET: got connection from %s -> " ANSI_COLOR_YELLOW "file not found %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+				}
+
+			}else{
+				request_status = 200; // 200 OK
+
+
+				if(p.DEBUG == 1){
+					time_t t = time(NULL);
+					struct tm tm = *localtime(&t);
+					printf(ANSI_COLOR_GREEN "[%d:%d:%d] GET: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+				}
 			}
-		}
-	}
 
+			// PROCESS HEADER & BODY
+			write_HEADER(sd, resource, request_status);
 
-	// PROCESS HEADER & BODY
-	char *header = get_header(resource, request_status);
-	sprintf(buf, "%s", header);
-	free(header); // free the memory allocated for the header string
-	write(sd, buf, strlen(buf));
+			if(fd != -1 && request_status == 200){
+				while (bLeidos=read(fd, buf, sizeof(buf))>0){
+					write(sd, buf, strlen(buf));
+				}
 
-	if(fd != -1 && request_status == 200){
-		while (bLeidos=read(fd, buf, sizeof(buf))>0){
-			write(sd, buf, strlen(buf));
-		}
-
-		close(fd);
-	}else{
-		// get body for error message
-
-
-		//procesar archivo de error
-		sprintf(archivo, "../%s%d.html", DEFAULT_ERROR_RESPONSES_FOLDER, request_status);
-		fd = open(archivo, O_RDONLY);
+				close(fd);
+			}else{
+				// get body for error message
+				sprintf(archivo, "../%s%d.html", DEFAULT_ERROR_RESPONSES_FOLDER, request_status);
+				fd = open(archivo, O_RDONLY);
 	
-		if(fd==-1){
-			strcpy(buf , "<hrml><head></head><body>Error file not found, please, do not delete /default_responses/ folder nor its content</body></html>");
-			write(sd, buf, strlen(buf));
-		}else{
-			while (bLeidos=read(fd, buf, sizeof(buf))>0){
-				write(sd, buf, strlen(buf));
+				if(fd==-1){
+					strcpy(buf , "<hrml><head></head><body>Error file not found, please, do not delete /default_responses/ folder nor its content</body></html>");
+					write(sd, buf, strlen(buf));
+				}else{
+					while (bLeidos=read(fd, buf, sizeof(buf))>0){
+						write(sd, buf, strlen(buf));
+					}
+
+					close(fd);
+				}
+		
 			}
 
-			close(fd);
 		}
+		if( strcmp("HEAD", comando) == 0 ){
+			// PROCESS HEADER
+			request_status = 200;
+			write_HEADER(sd, resource, request_status);
+
+			if(p.DEBUG == 1){
+				time_t t = time(NULL);
+				struct tm tm = *localtime(&t);
+				printf(ANSI_COLOR_GREEN "[%d:%d:%d] HEAD: got connection from %s -> " ANSI_COLOR_BLUE "serving %s" ANSI_COLOR_RESET "\n", tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(their_addr.sin_addr), archivo);
+			}
+		}
+		if( strcmp("DELETE", comando) == 0 ){
+
+		}
+
+
+		
+		//procesar archivo
+		
+
 		
 	}
+
+
+	
 
 
 	// log the connection to the server
 	log_write_access_registry(inet_ntoa(their_addr.sin_addr), resource, request_status); // TODO: Use the right status code, not just 200
 }
+
+
+
+
 
 
 void init_server_configuration(int argc, char *argv[]){

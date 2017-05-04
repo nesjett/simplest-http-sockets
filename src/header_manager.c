@@ -10,7 +10,7 @@ bool is_valid_protocol(char *ptcl){
 }
 
 bool is_valid_command(char *cmd){
-	if( strcmp("GET", cmd) != 0 && strcmp("PUT", cmd) != 0 && strcmp("DELETE", cmd) != 0 && strcmp("HEADE", cmd) != 0 ){
+	if( strcmp("GET", cmd) != 0 && strcmp("PUT", cmd) != 0 && strcmp("DELETE", cmd) != 0 && strcmp("HEAD", cmd) != 0 ){
 		return false;
 	}else{
 		return true;

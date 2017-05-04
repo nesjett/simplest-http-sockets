@@ -98,8 +98,9 @@ void print_config_params(struct params *p){
 	printf("LISTEN_PORT:" ANSI_COLOR_CYAN " %d\n" ANSI_COLOR_MAGENTA, p->LISTEN_PORT);
 	printf("MAX_CLIENTS:" ANSI_COLOR_CYAN " %d\n" ANSI_COLOR_MAGENTA, p->MAX_CLIENTS);
 	printf("DIRECTORY_INDEX:" ANSI_COLOR_CYAN " %s\n" ANSI_COLOR_MAGENTA, p->DIRECTORY_INDEX);
-	printf("SECURITY_FILE:" ANSI_COLOR_CYAN " %s\n" ANSI_COLOR_MAGENTA, p->SECURITY_FILE);
+	printf("SECURITY_FILE**:" ANSI_COLOR_CYAN " %s\n" ANSI_COLOR_MAGENTA, p->SECURITY_FILE);
 	printf("DOCUMENT_ROOT:" ANSI_COLOR_CYAN " %s\n" ANSI_COLOR_MAGENTA, p->DOCUMENT_ROOT);
+	printf("LOG_FOLDER**:" ANSI_COLOR_CYAN " %s\n" ANSI_COLOR_MAGENTA, p->LOG_FOLDER);
 
 	printf("\n-----------------------------------------" ANSI_COLOR_RESET "\n\n\n");
 }

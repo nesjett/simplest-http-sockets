@@ -3,10 +3,10 @@
 
 void log_write_access_registry(char *ip, char *resource, int status){
 	FILE *file;
-	file=fopen("../" LOG_FOLDER "access_log.txt", "a");
+	file=fopen("../" DEFAULT_LOG_FOLDER "access_log.txt", "a");
 
 	if(file==NULL) {
-		printf(ANSI_COLOR_RED "Error trying to write log file at ../" LOG_FOLDER "access_log.txt" ANSI_COLOR_RESET "\n");
+		printf(ANSI_COLOR_RED "Error trying to write log file at ../" DEFAULT_LOG_FOLDER "access_log.txt" ANSI_COLOR_RESET "\n");
 	}
 	else {
 		time_t t = time(NULL);
@@ -20,10 +20,10 @@ void log_write_access_registry(char *ip, char *resource, int status){
 
 void log_write_error_registry(char *message){
 	FILE *file;
-	file=fopen("../" LOG_FOLDER "error_log.txt", "a");
+	file=fopen("../" DEFAULT_LOG_FOLDER "error_log.txt", "a");
 
 	if(file==NULL) {
-		printf(ANSI_COLOR_RED "Error trying to write log file at ../" LOG_FOLDER "error_log.txt" ANSI_COLOR_RESET "\n");
+		printf(ANSI_COLOR_RED "Error trying to write log file at ../" DEFAULT_LOG_FOLDER "error_log.txt" ANSI_COLOR_RESET "\n");
 	}
 	else {
 		time_t t = time(NULL);
