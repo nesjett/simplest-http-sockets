@@ -215,7 +215,11 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 			}
 		}
 		if( strcmp("DELETE", comando) == 0 ){
+			// PROCESS HEADER
+			request_status = 200;
+			write_HEADER(sd, resource, request_status);
 
+			
 		}
 
 
