@@ -285,9 +285,9 @@ void processHTTP_REQUEST(int sd, struct sockaddr_in their_addr)
 				}
 			}
 
+			close(fd);
 
-
-
+	
 
 			// PROCESS HEADER
 			write_HEADER(sd, resource, request_status, 0);

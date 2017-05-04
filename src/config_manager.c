@@ -31,25 +31,25 @@ void read_config(char file[256], struct params *t) {
 
 
 			// STRING PARAMS
-			if( strcmp("DIRECTORY_INDEX", command) == 0  && t->DIRECTORY_INDEX == NULL){
+			if( strcmp("DIRECTORY_INDEX", command) == 0){
 				command = strtok(NULL, "\r\n");
 				strcpy(t->DIRECTORY_INDEX , command);
 				continue;
 			}
 
-			if( strcmp("SECURITY_FILE", command) == 0  && t->SECURITY_FILE == NULL){
+			if( strcmp("SECURITY_FILE", command) == 0){
 				command = strtok(NULL, "\r\n");
 				strcpy(t->SECURITY_FILE , command);
 				continue;
 			}
 
-			if( strcmp("DOCUMENT_ROOT", command) == 0 && t->DOCUMENT_ROOT == NULL){
+			if( strcmp("DOCUMENT_ROOT", command) == 0){
 				command = strtok(NULL, "\r\n");
 				strcpy(t->DOCUMENT_ROOT , command);
 				continue;
 			}
 
-			if( strcmp("LOG_FOLDER", command) == 0 && t->LOG_FOLDER == NULL){
+			if( strcmp("LOG_FOLDER", command) == 0){
 				command = strtok(NULL, "\r\n");
 				strcpy(t->LOG_FOLDER , command);
 				continue;
