@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="description" content="Simplest http server and client using sockets."/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="./style.css?v=829416595956423c2db45265460ed21d9cfe5d33">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">simplest-http-sockets-communication</h1>
+      <h2 class="project-tagline">Simplest http server and client using sockets.</h2>
+      
+        <a href="https://github.com/nesjett/simplest-http-sockets-communication" class="btn">View on GitHub</a>
+      
+      
+    </section>
+
+    <section class="main-content">
+      <h1 id="simplest-http-sockets-communication">Wellcome to the simplest http server</h1>
+
+		<p>
+		This server works with websockets and contains the minimun required dependencies to make it work, in a proper way.
+		</p>
+		<p>
+		You should never use this server on production, It's designed with learning porpourses and will not be maintained in the future.
+		</p>
+
+		<p>
+			To compile: gcc client.c -o client <br />
+			To execute client: ./client [ip/host] [port] [file] <br />
+			To execute server: ./server
+		</p>
+
+
+		<p>
+			<h3>Dependencies:</h3>
+			<ul>
+				<li><b>config:</b> contains server configuration files. Yoy may adjust server parameters there. <a href="#config-params-example">Click here to see a config file example</a></li>
+				<li><b>default_responses:</b> Contains the default http response pages (500, 404, ...) YOU <u>SHOULDN'T TOUCH THIS FOLDER</u>, if you want to add custom response pages you have to create them inside public_html > custom_responses</li>
+				<li><b>public_html:</b> The folder in which you have to actually place your html.</li>
+			</ul>
+		</p>
+
+
+		<h2 id="config-params-example">Configuration parameters</h2>
+		<p>
+			# Enables debug messages on server console<br />
+			<b>DEBUG 1</b><br /><br />
+
+			# Server port to listen incoming requests<br />
+			<b>LISTEN_PORT 3490</b><br /><br />
+
+			# Maximun allowed connections to attend to at the same time<br />
+			<b>MAX_CLIENTS 10</b><br /><br />
+
+
+			# Default files to look for if none provided on the URI<br />
+			<b>DIRECTORY_INDEX index.html,index.htm,index.txt</b> <br /><br />
+
+
+			# TODO: Create file on each public_html directory to allow user control some security/rewrite rules<br />
+			<b>SECURITY_FILE .htaccess</b> <br /><br />
+
+
+			# Public access html's folder<br />
+			<b>DOCUMENT_ROOT public_html</b> 
+		</p>
+
+
+
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="https://github.com/nesjett/simplest-http-sockets-communication">simplest-http-sockets-communication</a> is maintained by <a href="https://github.com/nesjett">nesjett</a>.</span>
+        
+       
+      </footer>
+    </section>
+
+    
+  </body>
+</html>
+
