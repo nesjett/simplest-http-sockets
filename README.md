@@ -4,6 +4,8 @@ This project is intended as an example for those who want to learn how HTTP prot
 It's developed in C, keeping in mind the readability as priority.  
   
 The project is not production ready and can be improved in many ways, from better encapsulation to better security algorithms, but as mentioned, It aims to provide a starting point for those willing to learn.  
+
+-- This repository IS NOT using any 3rd party libraries, everything is made simple enought to work and be understandable --
   
   
 ## How to use
