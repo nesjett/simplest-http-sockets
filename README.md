@@ -29,17 +29,17 @@ Two log files to record all server requests and errors
 
 
 ## Project structure
-- server/*bin*
+- server/**bin**
   - Contains all executables for <ins>server</ins> and for <ins>client</ins>
-- server/*config*
+- server/**config**
   - Contains configuration files for server. This files are used to configure different parameters in the server.
-- server/*default_responses*
+- server/**default_responses**
   - Contains the default html response pages, if not provided in the website we want to access.(500, 404, ...) 
-- server/*public_html*
+- server/**public_html**
   - Contains the publicly accesible site files for the server. Ex: index.html, myWebsite.html, etc.
-- server/*logs*
+- server/**logs**
   - Contains the log files for access and errors.
-- *src*
+- **src**
   - Contains all .c y .h files, to get a cleaner code but keeping it readable for begginers.
 
 
