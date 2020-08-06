@@ -1,5 +1,12 @@
 # Very simple HTTP server & client
 This project is intended as an example for those who want to learn how HTTP protocol works in both, client and server software, from the very basics to a more advanced handling.  
+---
+**AUTHOR WEBSITE**
+
+You can find more about the author, this and other of his projects at [Nestor Sabater's Portfolio](https://nsabater.com/a-simple-http-server-client-for-begginers)
+
+---
+
   
 It's developed in C, keeping in mind the readability as priority.  
   
